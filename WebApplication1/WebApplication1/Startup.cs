@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApplication1.Data;
+using WebApplication1.Services.Interfaces;
+using WebApplication1.Services.Repositories;
 
 namespace WebApplication1
 {
@@ -28,10 +30,14 @@ namespace WebApplication1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
@@ -44,6 +50,11 @@ namespace WebApplication1
                 options.ClientId = googleAuthNSection["ClientId"];
                 options.ClientSecret = googleAuthNSection["ClientSecret"];
             });
+
+            //BlogsRepository is to be initialized whenever there is a request for IBlogsRepository
+            services.AddScoped<IBlogsRepository, BlogsRepository>();
+            //PostsRepository is to be initialized whenever there is a request for IPostsRepository
+            services.AddScoped<IPostsRepository, PostsRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
